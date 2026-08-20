@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>دفتر نوبت سالن</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+    font-family: Tahoma, Arial;
+}
+
+body {
+    margin: 0;
+    background: #fff5f8;
+}
+
+header {
+    background: #d86b91;
+    color: white;
+    text-align: center;
+    padding: 25px;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.container {
+    max-width: 500px;
+    margin: auto;
+    padding: 15px;
+}
+
+.box {
+    background: white;
+    padding: 18px;
+    border-radius: 18px;
+    margin-bottom: 15px;
+    box-shadow: 0 5px 15px #00000012;
+}
+
+h2 {
+    color: #b84f75;
+    font-size: 20px;
+}
+
+
+label {
+    display: block;
+    margin-top: 12px;
+    margin-bottom: 6px;
+}
+
+
+input {
+
+    width: 100%;
+    padding: 13px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    outline: none;
+
+}
+
+
+input:focus {
+
+    border-color: #d86b91;
+
+}
+
+
+button {
+
+    border: none;
+    cursor: pointer;
+
+}
+
+
+.save {
+
+    width: 100%;
+    margin-top: 20px;
+    padding: 14px;
+    background: #d86b91;
+    color: white;
+    border-radius: 10px;
+    font-size: 17px;
+
+}
+
+
+
+.item {
+
+    background: #fff8fa;
+    border-right: 4px solid #d86b91;
+    padding: 15px;
+    border-radius: 12px;
+    margin-top: 12px;
+
+}
+
+
+.name {
+
+    font-size: 18px;
+    font-weight: bold;
+    color: #b84f75;
+    margin-bottom: 10px;
+
+}
+
+
+.info {
+
+    line-height: 2;
+    font-size: 14px;
+
+}
+
+
+
+.delete {
+
+    width: 100%;
+    margin-top: 12px;
+    padding: 10px;
+    background: #e74c3c;
+    color: white;
+    border-radius: 8px;
+
+}
+
+
+.empty {
+
+    text-align: center;
+    color: #999;
+    padding: 20px;
+
+}
+
+
+.count {
+
+    background: #f8dce6;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+<h1>🌸 دفتر نوبت سالن</h1>
+
+<p>مدیریت نوبت مشتری‌ها</p>
+
+</header>
+
+
+
+<div class="container">
+
+
+<div class="box">
+
+<h2>➕ ثبت نوبت</h2>
+
+
+<form id="form">
+
+
+<label>
+نام و نام خانوادگی
+</label>
+
+<input
+type="text"
+id="name"
+placeholder="نام مشتری"
+>
+
+
+
+<label>
+خدمات
+</label>
+
+<input
+type="text"
+id="service"
+placeholder="خدمات رو بنویس"
+>
+
+
+
+<label>
+تاریخ
+</label>
+
+<input
+type="text"
+id="date"
+placeholder="تاریخ رو بنویس"
+>
+
+
+
+<label>
+ساعت
+</label>
+
+<input
+type="text"
+id="time"
+placeholder="ساعت رو بنویس"
+>
+
+
+
+<button class="save">
+ثبت نوبت
+</button>
+
+
+</form>
+
+
+</div>
+
+
+
+
+<div class="box">
+
+
+<h2>
+📋 نوبت‌ها
+<span class="count" id="count">
+0
+</span>
+</h2>
+
+
+<div id="list"></div>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<script>
+
+
+let appointments =
+JSON.parse(localStorage.getItem("salonAppointments")) || [];
+
+
+
+const form = document.getElementById("form");
+const list = document.getElementById("list");
+const count = document.getElementById("count");
+
+
+
+
+
+function show(){
+
+
+list.innerHTML="";
+
+count.innerHTML = appointments.length;
+
+
+
+if(appointments.length === 0){
+
+list.innerHTML =
+`
+<div class="empty">
+هنوز نوبتی ثبت نشده 🌷
+</div>
+`;
+
+return;
+
+}
+
+
+
+appointments
+.slice()
+.reverse()
+.forEach(item=>{
+
+
+let div = document.createElement("div");
+
+div.className="item";
+
+
+div.innerHTML = `
+
+
+<div class="name">
+
+${safe(item.name) || "بدون نام"}
+
+</div>
+
+
+<div class="info">
+
+
+💇 خدمات:
+${safe(item.service) || "ثبت نشده"}
+
+<br>
+
+
+📅 تاریخ:
+${safe(item.date) || "ثبت نشده"}
+
+
+<br>
+
+
+⏰ ساعت:
+${safe(item.time) || "ثبت نشده"}
+
+
+</div>
+
+
+
+<button class="delete"
+onclick="removeItem(${item.id})">
+
+🗑 حذف نوبت
+
+</button>
+
+
+`;
+
+
+
+list.appendChild(div);
+
+
+
+});
+
+
+}
+
+
+
+
+
+form.addEventListener("submit",function(e){
+
+
+e.preventDefault();
+
+
+
+let data={
+
+
+id:Date.now(),
+
+
+name:
+document.getElementById("name").value.trim(),
+
+
+service:
+document.getElementById("service").value.trim(),
+
+
+date:
+document.getElementById("date").value.trim(),
+
+
+time:
+document.getElementById("time").value.trim()
+
+
+};
+
+
+
+appointments.push(data);
+
+
+
+localStorage.setItem(
+
+"salonAppointments",
+
+JSON.stringify(appointments)
+
+);
+
+
+
+form.reset();
+
+
+
+show();
+
+
+
+});
+
+
+
+
+
+function removeItem(id){
+
+
+if(confirm("حذف شود؟")){
+
+
+appointments =
+appointments.filter(
+x=>x.id !== id
+);
+
+
+localStorage.setItem(
+
+"salonAppointments",
+
+JSON.stringify(appointments)
+
+);
+
+
+show();
+
+
+}
+
+
+}
+
+
+
+
+
+function safe(text){
+
+
+return String(text)
+
+.replace(/&/g,"&amp;")
+
+.replace(/</g,"&lt;")
+
+.replace(/>/g,"&gt;")
+
+.replace(/"/g,"&quot;")
+
+.replace(/'/g,"&#039;");
+
+
+}
+
+
+
+
+
+show();
+
+
+</script>
+
+
+</body>
+
+</html>
